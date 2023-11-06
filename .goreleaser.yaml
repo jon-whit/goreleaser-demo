@@ -76,7 +76,7 @@ docker_manifests:
 
 release:
   github:
-    owner: jonwhit
+    owner: jon-whit
     name: goreleaser-demo
 
 sboms:
@@ -108,8 +108,7 @@ docker_signs:
     - "--yes" # needed on cosign 2.0.0+
 
 archives:
-  - id: demo-archive
-    builds:
+  - builds:
     - demo
     name_template: |-
       {{ .ProjectName }}-{{ .Os }}-{{ .Arch }}
