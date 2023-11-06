@@ -80,7 +80,9 @@ release:
     name: goreleaser-demo
 
 sboms:
-  - artifacts: archive
+  - artifacts: binary
+    documents:
+      - "${artifact}.sbom"
 
 signs:
 - cmd: cosign
