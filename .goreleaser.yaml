@@ -1,0 +1,129 @@
+project_name: demo
+
+builds:
+  - id: demo
+    main: main.go
+    binary: demo
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - "-s -w"
+      - "-X github.com/jon-whit/goreleaser-demo/internal/build.Version=v{{ .Version }}"
+      - "-X github.com/jon-whit/goreleaser-demo/internal/build.Commit={{.Commit}}"
+      - "-X github.com/jon-whit/goreleaser-demo/internal/build.Date={{.Date}}"
+
+dockers:
+  - goos: linux
+    goarch: amd64
+
+    dockerfile: Dockerfile.goreleaser
+
+    image_templates:
+      - "jonwhit/demo:latest-amd64"
+      - "jonwhit/demo:{{ .Tag }}-amd64"
+      - "jonwhit/demo:v{{ .Version }}-amd64"
+      - "jonwhit/demo:v{{ .Major }}-amd64"
+      - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}-amd64"
+      - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+
+  - goos: linux
+    goarch: arm64
+
+    dockerfile: Dockerfile.goreleaser
+
+    image_templates:
+      - "jonwhit/demo:latest-arm64"
+      - "jonwhit/demo:{{ .Tag }}-arm64"
+      - "jonwhit/demo:v{{ .Version }}-arm64"
+      - "jonwhit/demo:v{{ .Major }}-arm64"
+      - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: jonwhit/demo:latest
+    image_templates:
+      - jonwhit/demo:latest-amd64
+      - jonwhit/demo:latest-arm64
+  - name_template: jonwhit/demo:v{{ .Version }}
+    image_templates:
+      - jonwhit/demo:v{{ .Version }}-amd64
+      - jonwhit/demo:v{{ .Version }}-arm64
+  - name_template: jonwhit/demo:v{{ .Major }}
+    image_templates:
+      - jonwhit/demo:v{{ .Major }}-amd64
+      - jonwhit/demo:v{{ .Major }}-arm64
+  - name_template: jonwhit/demo:v{{ .Major }}.{{ .Minor }}
+    image_templates:
+      - jonwhit/demo:v{{ .Major }}.{{ .Minor }}-amd64
+      - jonwhit/demo:v{{ .Major }}.{{ .Minor }}-arm64
+  - name_template: jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}
+    image_templates:
+      - jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64
+      - jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64
+
+release:
+  github:
+    owner: jonwhit
+    name: goreleaser-demo
+
+sboms:
+  - artifacts: archive
+
+signs:
+- cmd: cosign
+  env:
+  - COSIGN_EXPERIMENTAL=1
+  certificate: '${artifact}.pem'
+  args:
+    - sign-blob
+    - '--output-certificate=${certificate}'
+    - '--output-signature=${signature}'
+    - '${artifact}'
+    - "--yes" # needed on cosign 2.0.0+
+  artifacts: checksum
+  output: true
+
+docker_signs:
+  - cmd: cosign
+    env:
+    - COSIGN_EXPERIMENTAL=1
+    artifacts: manifests
+    output: true
+    args:
+    - 'sign'
+    - '${artifact}'
+    - "--yes" # needed on cosign 2.0.0+
+
+archives:
+  - id: demo-archive
+    builds:
+    - demo
+    name_template: |-
+      {{ .ProjectName }}-{{ .Os }}-{{ .Arch }}
+    format: binary
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
