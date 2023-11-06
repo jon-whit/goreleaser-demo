@@ -41,8 +41,6 @@ dockers:
 
     image_templates:
       - "jonwhit/demo:latest-arm64"
-      - "jonwhit/demo:{{ .Tag }}-arm64"
-      - "jonwhit/demo:v{{ .Version }}-arm64"
       - "jonwhit/demo:v{{ .Major }}-arm64"
       - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}-arm64"
       - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
@@ -81,6 +79,9 @@ release:
 
 sboms:
   - artifacts: binary
+    documents:
+      - "{{ .Binary }}-{{ .Os }}-{{ .Arch }}.sbom"
+
 
 signs:
 - cmd: cosign
