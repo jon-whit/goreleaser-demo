@@ -25,9 +25,6 @@ dockers:
     image_templates:
       - "jonwhit/demo:latest-amd64"
       - "jonwhit/demo:{{ .Tag }}-amd64"
-      - "jonwhit/demo:v{{ .Version }}-amd64"
-      - "jonwhit/demo:v{{ .Major }}-amd64"
-      - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}-amd64"
       - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
 
     use: buildx
@@ -41,8 +38,7 @@ dockers:
 
     image_templates:
       - "jonwhit/demo:latest-arm64"
-      - "jonwhit/demo:v{{ .Major }}-arm64"
-      - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "jonwhit/demo:{{ .Tag }}-arm64"
       - "jonwhit/demo:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
 
     use: buildx
