@@ -81,8 +81,6 @@ release:
 
 sboms:
   - artifacts: binary
-    documents:
-      - "${artifact}.sbom"
 
 signs:
 - cmd: cosign
@@ -106,7 +104,7 @@ docker_signs:
     output: true
     args:
     - 'sign'
-    - '${artifact}'
+    - '${artifact}@${digest}'
     - "--yes" # needed on cosign 2.0.0+
 
 archives:
